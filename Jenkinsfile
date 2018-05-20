@@ -3,10 +3,11 @@ pipeline {
         label 'jnlp-with-docker'
     }
     
-    def image = "sbg/iks"
-    def tag = "0.1_${env.BUILD_NUMBER}"
-    def repoArtifactory = "docker.artifactory.a.intuit.com"
-    def imageArtifactory = "dev/build/ibp/kubernetes-replicator"
+    enviornment{
+        def tag = "0.1_${env.BUILD_NUMBER}"
+        def repoArtifactory = "docker.artifactory.a.intuit.com"
+        def imageArtifactory = "dev/build/ibp/kubernetes-replicator"
+    }
 
     stages {
         stage('Clone repository') {
