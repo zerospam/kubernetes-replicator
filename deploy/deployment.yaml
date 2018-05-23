@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: replicator-deployment
-  namespace: kube-system
+  namespace: ibp-cp
 spec:
   replicas: 1
   template:
