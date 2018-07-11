@@ -16,8 +16,7 @@ $ kubectl apply -f https://github.intuit.com/raw/dev-build/kubernetes-replicator
 
 ## Usage
 
-- If a secret or configMap needs to be replicated to other namespaces, annotations should be added in that object permitting replication. 
-  - Add `replicator.v1.mittwald.de/replication-allowed` annotation with value `True` indicating that the object can be replicated.
+- If a secret or configMap needs to be replicated to other namespaces, annotations should be added in that object permitting replication.
   - Add `replicator.v1.mittwald.de/replication-allowed-namespaces` annotation. Value of this annotation should contain a comma separated list or permitted namespaces or regular expressions. for e.g. `namespace-1,my-ns-2,app-ns-[0-9]*`, in this case replication will be performed only names `namespace-1`, `my-ns-2` and any namespace that matches the regular expression `app-ns-[0-9]*`.
 
     ```yaml
@@ -25,7 +24,6 @@ $ kubectl apply -f https://github.intuit.com/raw/dev-build/kubernetes-replicator
     kind: Secret
     metadata:
       annotations:
-        replicator.v1.mittwald.de/replicate-allowed: True
         replicator.v1.mittwald.de/replicate-allowed-namespaces: "my-ns-1,namespace-[0-9]*"
     data:
       key1: <value>

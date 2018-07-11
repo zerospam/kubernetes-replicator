@@ -2,5 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: config-source
+  annotations:
+    replicator.v1.mittwald.de/replicate-allowed-namespaces: "my-ns-1,namespace-[0-9]*,default"
 data:
   foo: bar
