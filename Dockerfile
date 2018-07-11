@@ -1,4 +1,4 @@
-FROM golang:1.10
+FROM golang:1.10-alpine
 
 COPY . /go/src/github.com/mittwald/kubernetes-replicator
 WORKDIR /go/src/github.com/mittwald/kubernetes-replicator

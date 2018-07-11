@@ -13,4 +13,4 @@ spec:
       serviceAccountName: replicator
       containers:
         - name: replicator
-          image: docker.artifactory.a.intuit.com/dev/build/ibp/kubernetes-replicator:latest
+          image: zerospam/kubernetes-replicator:latest
