@@ -1,8 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: replicator
+
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: replicator-deployment
-  namespace: ibp-cp
+  namespace: replicator
 spec:
   replicas: 1
   template:
@@ -10,7 +16,7 @@ spec:
       labels:
         app: replicator
     spec:
-      serviceAccountName: replicator
+      serviceAccountName: replicator-account
       containers:
         - name: replicator
           image: zerospam/kubernetes-replicator:1.1
