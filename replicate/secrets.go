@@ -19,18 +19,16 @@ import (
 )
 
 type secretReplicator struct {
-	client     kubernetes.Interface
-	store      cache.Store
-	controller cache.Controller
-
-	dependencyMap map[string][]string
+	replicatorProps
 }
 
 // NewSecretReplicator creates a new secret replicator
 func NewSecretReplicator(client kubernetes.Interface, resyncPeriod time.Duration) Replicator {
 	repl := secretReplicator{
-		client:        client,
-		dependencyMap: make(map[string][]string),
+		replicatorProps: replicatorProps{
+			client:        client,
+			dependencyMap: make(map[string]Set),
+		},
 	}
 
 	store, controller := cache.NewInformer(
@@ -68,7 +66,7 @@ func (r *secretReplicator) SecretAdded(obj interface{}) {
 
 	replicas, ok := r.dependencyMap[secretKey]
 	if ok {
-		log.Printf("secret %s has %d dependents", secretKey, len(replicas))
+		log.Printf("secret %s has %d dependents", secretKey, replicas.Length())
 		r.updateDependents(secret, replicas)
 	}
 
@@ -94,10 +92,10 @@ func (r *secretReplicator) SecretAdded(obj interface{}) {
 	}
 
 	if _, ok := r.dependencyMap[val]; !ok {
-		r.dependencyMap[val] = make([]string, 0, 1)
+		r.dependencyMap[val] = NewStringSet()
 	}
 
-	r.dependencyMap[val] = append(r.dependencyMap[val], secretKey)
+	r.dependencyMap[val].Add(secretKey)
 
 	sourceSecret := sourceObject.(*v1.Secret)
 
@@ -184,8 +182,8 @@ func (r *secretReplicator) secretFromStore(key string) (*v1.Secret, error) {
 	return secret, nil
 }
 
-func (r *secretReplicator) updateDependents(secret *v1.Secret, dependents []string) error {
-	for _, dependentKey := range dependents {
+func (r *secretReplicator) updateDependents(secret *v1.Secret, dependents Set) error {
+	for _, dependentKey := range dependents.Values() {
 		log.Printf("updating dependent secret %s/%s -> %s", secret.Namespace, secret.Name, dependentKey)
 
 		targetObject, exists, err := r.store.GetByKey(dependentKey)
@@ -215,10 +213,11 @@ func (r *secretReplicator) SecretDeleted(obj interface{}) {
 		return
 	}
 
-	for _, dependentKey := range replicas {
+	for _, dependentKey := range replicas.Values() {
 		targetSecret, err := r.secretFromStore(dependentKey)
 		if err != nil {
 			log.Printf("could not load dependent secret: %s", err)
+			r.dependencyMap[secretKey].Remove(dependentKey)
 			continue
 		}
 

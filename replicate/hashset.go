@@ -5,7 +5,7 @@ type Set interface {
 	Contains(value string) (bool)
 	Length() (int)
 	Remove(value string)
-	Keys() ([]string)
+	Values() ([]string)
 }
 
 type StringHashSet struct {
@@ -29,7 +29,7 @@ func(mapSet *StringHashSet) Remove(value string) {
 	delete(mapSet.data, value)
 }
 
-func (mapSet *StringHashSet) Keys() ([]string) {
+func (mapSet *StringHashSet) Values() ([]string) {
 	keys := make([]string, mapSet.Length())
 
 	i := 0

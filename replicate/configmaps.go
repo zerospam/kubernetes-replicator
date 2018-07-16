@@ -27,7 +27,7 @@ func NewConfigMapReplicator(client kubernetes.Interface, resyncPeriod time.Durat
 	repl := configMapReplicator{
 		replicatorProps: replicatorProps{
 			client:        client,
-			dependencyMap: make(map[string][]string),
+			dependencyMap: make(map[string]Set),
 		},
 	}
 
@@ -66,7 +66,7 @@ func (r *configMapReplicator) ConfigMapAdded(obj interface{}) {
 
 	replicas, ok := r.dependencyMap[configMapKey]
 	if ok {
-		log.Printf("config map %s has %d dependents", configMapKey, len(replicas))
+		log.Printf("config map %s has %d dependents", configMapKey, replicas.Length())
 		r.updateDependents(configMap, replicas)
 	}
 
@@ -92,10 +92,10 @@ func (r *configMapReplicator) ConfigMapAdded(obj interface{}) {
 	}
 
 	if _, ok := r.dependencyMap[val]; !ok {
-		r.dependencyMap[val] = make([]string, 0, 1)
+		r.dependencyMap[val] = NewStringSet()
 	}
 
-	r.dependencyMap[val] = append(r.dependencyMap[val], configMapKey)
+	r.dependencyMap[val].Add(configMapKey)
 
 	sourceConfigMap := sourceObject.(*v1.ConfigMap)
 
@@ -180,8 +180,8 @@ func (r *configMapReplicator) configMapFromStore(key string) (*v1.ConfigMap, err
 	return configMap, nil
 }
 
-func (r *configMapReplicator) updateDependents(configMap *v1.ConfigMap, dependents []string) error {
-	for _, dependentKey := range dependents {
+func (r *configMapReplicator) updateDependents(configMap *v1.ConfigMap, dependents Set) error {
+	for _, dependentKey := range dependents.Values() {
 		log.Printf("updating dependent config map %s/%s -> %s", configMap.Namespace, configMap.Name, dependentKey)
 
 		targetObject, exists, err := r.store.GetByKey(dependentKey)
@@ -211,10 +211,11 @@ func (r *configMapReplicator) ConfigMapDeleted(obj interface{}) {
 		return
 	}
 
-	for _, dependentKey := range replicas {
+	for _, dependentKey := range replicas.Values() {
 		targetConfigMap, err := r.configMapFromStore(dependentKey)
 		if err != nil {
 			log.Printf("could not load dependent config map: %s", err)
+			r.dependencyMap[configMapKey].Remove(dependentKey)
 			continue
 		}
 

@@ -10,7 +10,7 @@ type replicatorProps struct {
 	store      cache.Store
 	controller cache.Controller
 
-	dependencyMap map[string][]string
+	dependencyMap map[string]Set
 }
 
 // Replicator describes the common interface that the secret and configmap
