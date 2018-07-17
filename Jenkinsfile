@@ -1,13 +1,11 @@
-podTemplate(label: 'replicator', containers: [
+podTemplate(name: 'replicator', containers: [
  containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat'),
  ],
   volumes: [
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
   ]) {
     def image="zerospam/kubernetes-replicator"
-    def tag = "1.3_${env.BUILD_NUMBER}"
-    def repoArtifactory = "hub.docker.com"
-    def imageArtifactory = "dev/build/ibp/kubernetes-replicator"
+    def tag = "1.3"
     def builtImage = null
 
     node {
