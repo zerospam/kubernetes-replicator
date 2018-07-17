@@ -19,4 +19,4 @@ spec:
       serviceAccountName: replicator-account
       containers:
         - name: replicator
-          image: zerospam/kubernetes-replicator:1.1
+          image: zerospam/kubernetes-replicator:1.3

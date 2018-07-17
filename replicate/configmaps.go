@@ -211,6 +211,8 @@ func (r *configMapReplicator) ConfigMapDeleted(obj interface{}) {
 		return
 	}
 
+	processingError := false
+
 	for _, dependentKey := range replicas.Values() {
 		targetConfigMap, err := r.configMapFromStore(dependentKey)
 		if err != nil {
@@ -224,6 +226,7 @@ func (r *configMapReplicator) ConfigMapDeleted(obj interface{}) {
 
 		if err != nil {
 			log.Printf("error while building patch body for config map %s: %s", dependentKey, err)
+			processingError = true
 			continue
 		}
 
@@ -233,9 +236,14 @@ func (r *configMapReplicator) ConfigMapDeleted(obj interface{}) {
 		s, err := r.client.CoreV1().ConfigMaps(targetConfigMap.Namespace).Patch(targetConfigMap.Name, types.JSONPatchType, patchBody)
 		if err != nil {
 			log.Printf("error while patching config map %s: %s", dependentKey, err)
+			processingError = true
 			continue
 		}
 
 		r.store.Update(s)
+	}
+
+	if !processingError {
+		delete(r.dependencyMap, configMapKey)
 	}
 }

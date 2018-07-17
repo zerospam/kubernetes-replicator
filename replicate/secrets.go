@@ -212,6 +212,7 @@ func (r *secretReplicator) SecretDeleted(obj interface{}) {
 		log.Printf("secret %s has no dependents and can be deleted without issues", secretKey)
 		return
 	}
+	processingError := false
 
 	for _, dependentKey := range replicas.Values() {
 		targetSecret, err := r.secretFromStore(dependentKey)
@@ -225,7 +226,8 @@ func (r *secretReplicator) SecretDeleted(obj interface{}) {
 		patchBody, err := json.Marshal(&patch)
 
 		if err != nil {
-			log.Printf("error while building patch body for secret %s: %s", dependentKey, err)
+			log.Printf("Error while building patch body for secret %s: %s", dependentKey, err)
+			processingError = true
 			continue
 		}
 
@@ -234,10 +236,15 @@ func (r *secretReplicator) SecretDeleted(obj interface{}) {
 
 		s, err := r.client.CoreV1().Secrets(targetSecret.Namespace).Patch(targetSecret.Name, types.JSONPatchType, patchBody)
 		if err != nil {
-			log.Printf("error while patching secret %s: %s", dependentKey, err)
+			log.Printf("Error while patching secret %s: %s", dependentKey, err)
+			processingError = true
 			continue
 		}
 
 		r.store.Update(s)
+	}
+
+	if !processingError {
+		delete(r.dependencyMap, secretKey)
 	}
 }
