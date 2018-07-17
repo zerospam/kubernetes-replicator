@@ -1,5 +1,5 @@
-podTemplate(name: 'replicator', containers: [
- containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat'),
+podTemplate(label: 'replicator', containers: [
+    containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat'),
  ],
   volumes: [
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
@@ -8,7 +8,7 @@ podTemplate(name: 'replicator', containers: [
     def tag = "1.3"
     def builtImage = null
 
-    node {
+    node ('replicator') {
         gitInfo = checkout scm
          container('docker') {
             stage('docker build') {
