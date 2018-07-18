@@ -20,8 +20,8 @@ podTemplate(label: 'replicator', containers: [
                 stage('Push docker image to Docker Hub') {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub') {
                             builtImage.push('latest')
-                            builtImage.push('${tag}')
-                            builtImage.push('${gitInfo.GIT_COMMIT}')
+                            builtImage.push("${tag}")
+                            builtImage.push("${gitInfo.GIT_COMMIT}")
                     }
                 } // stage
             } // if master branch
