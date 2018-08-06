@@ -1,5 +1,7 @@
-podTemplate(label: 'replicator', containers: [
+def label = "replicator-${UUID.randomUUID().toString()}"
+podTemplate(label: label, containers: [
     containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.19-1-alpine', args: '${computer.jnlpmac} ${computer.name}')
  ],
   volumes: [
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
@@ -8,7 +10,7 @@ podTemplate(label: 'replicator', containers: [
     def tag = "1.3"
     def builtImage = null
 
-    node ('replicator') {
+    node (label) {
         gitInfo = checkout scm
          container('docker') {
             stage('docker build') {
