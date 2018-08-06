@@ -1,5 +1,5 @@
 def label = "replicator-${UUID.randomUUID().toString()}"
-podTemplate(label: label, containers: [
+podTemplate(label: label, inheritFrom: 'default', containers: [
     containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat')
  ],
   volumes: [
