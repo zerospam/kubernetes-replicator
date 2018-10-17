@@ -9,9 +9,9 @@ secrets and config maps available in multiple namespaces.
 
 ```shellsession
 $ # Create roles and service accounts
-$ kubectl apply -f  https://github.intuit.com/raw/dev-build/kubernetes-replicator/master/deploy/rbac.yaml
+$ kubectl apply -f  https://raw.githubusercontent.com/zerospam/kubernetes-replicator/master/deploy/00-rbac.yaml
 $ # Create actual deployment
-$ kubectl apply -f https://github.intuit.com/raw/dev-build/kubernetes-replicator/master/deploy/deployment.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/zerospam/kubernetes-replicator/master/deploy/01-deployment.yaml
 ```
 
 ## Usage
