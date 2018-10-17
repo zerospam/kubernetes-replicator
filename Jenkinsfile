@@ -1,10 +1,5 @@
 def label = "replicator-${UUID.randomUUID().toString()}"
-podTemplate(label: label, inheritFrom: 'default', containers: [
-    containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat')
- ],
-  volumes: [
-    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
-  ]) {
+podTemplate(label: label, inheritFrom: 'docker') {
     def image="zerospam/kubernetes-replicator"
     def tag = "1.3"
     def builtImage = null
@@ -22,7 +17,6 @@ podTemplate(label: label, inheritFrom: 'default', containers: [
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub') {
                             builtImage.push('latest')
                             builtImage.push("${tag}")
-                            builtImage.push("${gitInfo.GIT_COMMIT}")
                     }
                 } // stage
             } // if master branch
